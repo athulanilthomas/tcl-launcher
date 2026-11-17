@@ -1,8 +1,7 @@
 package `in`.athulanilthomas.tcllauncher
 
 import android.content.Intent
-import androidx.compose.ui.graphics.asAndroidBitmap
-import java.io.File
+import android.os.ParcelFileDescriptor
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -16,12 +15,9 @@ class LauncherTest {
     @OptIn(ExperimentalTestApi::class)
     @Test fun remoteNavigationAndBack() {
         compose.onNodeWithText("All apps").performClick()
-        println(compose.onRoot().printToString())
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        File(context.getExternalFilesDir(null), "library.png").outputStream().use {
-            compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
-        }
-        compose.onNodeWithText("Installed apps").assertIsDisplayed()
+        ParcelFileDescriptor.AutoCloseInputStream(InstrumentationRegistry.getInstrumentation()
+            .uiAutomation.executeShellCommand("screencap -p /data/local/tmp/library.png")).use { it.readBytes() }
+        awaitDisplayed("Installed apps")
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         compose.onNodeWithText("Welcome home").assertIsDisplayed()
         compose.onNodeWithText("Personalize").performClick()
@@ -38,9 +34,19 @@ class LauncherTest {
         compose.onNodeWithText("Inputs").assertIsFocused()
     }
 
+    private fun awaitDisplayed(text: String) {
+        try {
+            compose.waitUntil(5_000) {
+                runCatching { compose.onNodeWithText(text).assertIsDisplayed(); true }.getOrDefault(false)
+            }
+        } catch (failure: Throwable) {
+            throw AssertionError("Waiting for $text\n" + compose.onRoot().printToString(), failure)
+        }
+    }
+
     @Test fun homeIntentReturnsFromLibrary() {
         compose.onNodeWithText("All apps").performClick()
-        compose.onNodeWithText("Installed apps").assertIsDisplayed()
+        awaitDisplayed("Installed apps")
         compose.activityRule.scenario.onActivity {
             it.startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
                 .setClass(it, MainActivity::class.java))
