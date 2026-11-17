@@ -45,10 +45,17 @@ import java.util.Locale
 internal data class TvApp(val label: String, val packageName: String, val intent: Intent)
 
 class MainActivity : ComponentActivity() {
+    private var homeRequests by mutableIntStateOf(0)
     private val preferences by lazy { LauncherPreferences(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent { MaterialTheme { LauncherScreen() } }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.hasCategory(Intent.CATEGORY_HOME)) homeRequests++
     }
 
     @Suppress("DEPRECATION")
@@ -83,6 +90,7 @@ class MainActivity : ComponentActivity() {
         var page by remember { mutableStateOf("home") }
         var editingSlot by remember { mutableStateOf<Int?>(null) }
         var refresh by remember { mutableIntStateOf(0) }
+        LaunchedEffect(homeRequests) { page = "home"; editingSlot = null }
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         DisposableEffect(lifecycle) {
             val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) refresh++ }

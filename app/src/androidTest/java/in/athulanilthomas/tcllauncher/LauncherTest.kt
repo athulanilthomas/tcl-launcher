@@ -1,5 +1,6 @@
 package `in`.athulanilthomas.tcllauncher
 
+import android.content.Intent
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -28,6 +29,17 @@ class LauncherTest {
         compose.onNodeWithText("Welcome home").assertIsDisplayed()
         compose.onNodeWithText("Settings").requestFocus().performKeyInput { pressKey(androidx.compose.ui.input.key.Key.DirectionRight) }
         compose.onNodeWithText("Inputs").assertIsFocused()
+    }
+
+    @Test fun homeIntentReturnsFromLibrary() {
+        compose.onNodeWithText("All apps").performClick()
+        compose.onNodeWithText("Installed apps").assertIsDisplayed()
+        compose.activityRule.scenario.onActivity {
+            it.startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                .setClass(it, MainActivity::class.java))
+        }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Welcome home").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Welcome home").assertIsDisplayed()
     }
 
     @Test fun preferencesSurviveRecreationAndMissingApps() {
