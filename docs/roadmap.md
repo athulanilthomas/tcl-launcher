@@ -1,27 +1,18 @@
-# Roadmap
+# Status and remaining validation
 
-## Phase 0 — Device and UX
-- [x] TCL 32V4C (2025), Google TV, Android 14 (API 34)
-- [ ] Verify TV resolution, supported inputs and remote buttons
-- [ ] Choose four favorite apps and preferred greeting
-- [ ] Review launcher mockups
+Implemented:
+- Kotlin / Compose for TV app and reproducible Gradle wrapper build
+- Locale-aware clock/date, greeting and four persistent, configurable favorites
+- Refreshing app library, D-pad controls, Back navigation and launch feedback
+- TV Settings and input-settings shortcut with fallback
+- Persisted local photo selection, slideshow, dark contrast overlay and uncropped images
+- Opt-in Android DreamService photo screensaver
+- Instrumentation coverage and build/lint CI
 
-## Phase 1 — Usable APK
-- [ ] Android Gradle project with Kotlin and Compose for TV
-- [ ] Clock/date, greeting and favorite apps
-- [ ] D-pad focus, Back navigation, Settings and app library
-- [ ] Test on Android TV emulator
-- [ ] Install as an ordinary APK via ADB and test on TV
+Still requires physical TCL validation:
+- Remote focus and layout at the TV's resolution
+- Firmware support for input settings, document providers and screensaver selection
+- Ordinary APK install and use before any default Home change
+- Optional third-party HOME eligibility, user selection and verified recovery
 
-## Phase 2 — Personalization
-- [ ] Local photo selection and slideshow
-- [ ] Text contrast and safe photo cropping
-- [ ] Optional screensaver
-
-## Phase 3 — Optional Home replacement
-- [ ] Check device support for selecting a third-party HOME app
-- [ ] Establish rollback path
-- [ ] Obtain explicit approval before changing any system package
-- [ ] Verify remote, Wi-Fi, HDMI, apps and settings after reboot
-
-No automatic debloating or stock launcher disabling.
+No automatic debloating, package disabling or stock Home replacement.

@@ -1,23 +1,29 @@
 # TCL Launcher
 
-A minimal custom launcher for **TCL 32V4C (2025)** running **Google TV / Android 14 (API 34)**.
+A minimal Android TV launcher for TCL 32V4C (2025), Google TV / Android 14, built with Kotlin and Compose for TV.
 
-## Goals
+- Clock and date respect the TV's locale and 12/24-hour preference
+- Four persistent favorites, configurable under **Personalize**
+- Full launchable app library, refreshed when returning to the launcher
+- D-pad focus, Select activation and Back navigation
+- Settings and TV input settings shortcuts with firmware fallbacks
+- Up to 20 local photo backgrounds, rotating every 30 seconds
+- Optional Android photo screensaver, enabled through TV screensaver settings
 
-- Clock, date, greeting, and photo backgrounds
-- Four configurable favorite apps and a full app library
-- D-pad/remote navigation
-- Settings and TV input shortcuts
-- Optional photo screensaver
+Photos are selected through Android's document picker and stay on the device. A document provider is required; some TV firmware does not include one. Missing or inaccessible photos fall back to the dark background. The app needs no network or broad storage permission.
 
-## Approach
+## Build and try
 
-Develop an Android application in Kotlin with Compose for TV, test on an emulator, then install through ADB. Verify the app works before considering replacing the stock Home app. Do not disable core TV packages or remove firmware.
+Use JDK 17 (or 21), Android SDK Platform 35 and the included Gradle wrapper:
 
-## Status
+```sh
+./gradlew :app:assembleDebug :app:lintDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n in.athulanilthomas.tcllauncher/.MainActivity
+```
 
-Planning and initial setup; no APK yet.
+See [build, validation and recovery](docs/build-and-install.md). GitHub Actions publishes a debug APK artifact for each build.
 
-## Reference
+Install and test as an ordinary TV app first. HOME registration does not guarantee that Google TV permits a third-party default launcher. No system packages are disabled or changed by this app.
 
-[Take Back Your TV agent instructions](https://github.com/Shubhamsaboo/awesome-llm-apps/blob/main/advanced_llm_apps/take-back-your-tv/agent.md)
+Physical TCL validation is still required for vendor-specific Inputs, screensaver selection and optional default Home behavior.
