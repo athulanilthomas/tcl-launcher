@@ -10,6 +10,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalTestApi::class)
 class LauncherTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
