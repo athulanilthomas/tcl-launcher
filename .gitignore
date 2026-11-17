@@ -1,0 +1,16 @@
+# Private TV data
+backups/
+photos/
+screenshots/
+local/
+*.apk
+*.aab
+
+# Android / Gradle
+.gradle/
+build/
+**/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
