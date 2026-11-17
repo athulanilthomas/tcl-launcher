@@ -108,6 +108,7 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(page, editingSlot, apps) {
             // Request after the destination has composed, including Lazy grid items.
             withFrameNanos { }
+            withFrameNanos { }
             if (page == "home") homeFocus.requestFocus() else contentFocus.requestFocus()
         }
         BackHandler {
