@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -106,7 +107,7 @@ class MainActivity : ComponentActivity() {
         val contentFocus = remember { FocusRequester() }
         LaunchedEffect(page, editingSlot, apps) {
             // Request after the destination has composed, including Lazy grid items.
-            delay(100)
+            withFrameNanos { }
             if (page == "home") homeFocus.requestFocus() else contentFocus.requestFocus()
         }
         BackHandler {
@@ -141,7 +142,7 @@ class MainActivity : ComponentActivity() {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     ClockAndDate()
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Action("Settings", Modifier.focusRequester(homeFocus)) { open(Intent(Settings.ACTION_SETTINGS)) }
+                        Action("Settings", Modifier.focusRequester(homeFocus).testTag("settings")) { open(Intent(Settings.ACTION_SETTINGS)) }
                         Action("Inputs") { open(Intent("android.settings.TV_INPUT_SETTINGS"), Intent(Settings.ACTION_SETTINGS)) }
                         Action(if (page == "home") "All apps" else "Home") { editingSlot = null; page = if (page == "home") "library" else "home" }
                         Action("Personalize") { editingSlot = null; page = "personalize" }

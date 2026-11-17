@@ -1,8 +1,9 @@
 package `in`.athulanilthomas.tcllauncher
 
 import android.content.Intent
-import android.os.ParcelFileDescriptor
 import androidx.compose.ui.test.*
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.*
@@ -12,26 +13,31 @@ import org.junit.Test
 class LauncherTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
-    @OptIn(ExperimentalTestApi::class)
     @Test fun remoteNavigationAndBack() {
-        compose.onNodeWithText("All apps").performClick()
-        ParcelFileDescriptor.AutoCloseInputStream(InstrumentationRegistry.getInstrumentation()
-            .uiAutomation.executeShellCommand("screencap -p /data/local/tmp/library.png")).use { it.readBytes() }
+        select("All apps")
         awaitDisplayed("Installed apps")
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithText("Welcome home").assertIsDisplayed()
-        compose.onNodeWithText("Personalize").performClick()
-        compose.onNodeWithText("Favorite 1").performClick()
-        compose.onNodeWithText("Choose favorite 1").assertIsDisplayed()
+        awaitDisplayed("Welcome home")
+        select("Personalize")
+        select("Favorite 1")
+        awaitDisplayed("Choose favorite 1")
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithText("Choose photos").assertIsDisplayed()
+        awaitDisplayed("Choose photos")
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithText("Welcome home").assertIsDisplayed()
+        awaitDisplayed("Welcome home")
         // Back at home must keep the launcher usable.
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithText("Welcome home").assertIsDisplayed()
-        compose.onNodeWithText("Settings").requestFocus().performKeyInput { pressKey(androidx.compose.ui.input.key.Key.DirectionRight) }
+        awaitDisplayed("Welcome home")
+        compose.onNodeWithTag("settings").performSemanticsAction(SemanticsActions.RequestFocus)
+        compose.onNodeWithTag("settings").performKeyInput { pressKey(Key.DirectionRight) }
         compose.onNodeWithText("Inputs").assertIsFocused()
+    }
+
+    private fun select(text: String) {
+        val node = compose.onNodeWithText(text)
+        node.performSemanticsAction(SemanticsActions.RequestFocus)
+        node.assertIsFocused()
+        node.performKeyInput { pressKey(Key.DirectionCenter) }
     }
 
     private fun awaitDisplayed(text: String) {
@@ -45,14 +51,14 @@ class LauncherTest {
     }
 
     @Test fun homeIntentReturnsFromLibrary() {
-        compose.onNodeWithText("All apps").performClick()
+        select("All apps")
         awaitDisplayed("Installed apps")
         compose.activityRule.scenario.onActivity {
             it.startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
                 .setClass(it, MainActivity::class.java))
         }
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Welcome home").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("Welcome home").assertIsDisplayed()
+        awaitDisplayed("Welcome home")
     }
 
     @Test fun preferencesSurviveRecreationAndMissingApps() {
@@ -65,7 +71,7 @@ class LauncherTest {
             assertEquals(listOf("missing.app", "two", null, "four"), reloaded)
             compose.activityRule.scenario.recreate()
             compose.waitForIdle()
-            compose.onNodeWithText("Choose app 1").assertIsDisplayed()
+            awaitDisplayed("Choose app 1")
         } finally { preferences.saveFavorites(before) }
     }
 }

@@ -55,8 +55,7 @@ jobs:
           arch: x86
           profile: tv_720p
           disable-animations: true
-          script: |
-            ./gradlew :app:connectedDebugAndroidTest --no-daemon || { adb pull /data/local/tmp/library.png app/build/reports/androidTests/connected/library.png; exit 1; }
+          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon
       - uses: actions/upload-artifact@v4
         if: always()
         with:
