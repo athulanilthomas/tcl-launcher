@@ -1,6 +1,8 @@
 package `in`.athulanilthomas.tcllauncher
 
 import android.content.Intent
+import androidx.compose.ui.graphics.asAndroidBitmap
+import java.io.File
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -14,6 +16,11 @@ class LauncherTest {
     @OptIn(ExperimentalTestApi::class)
     @Test fun remoteNavigationAndBack() {
         compose.onNodeWithText("All apps").performClick()
+        println(compose.onRoot().printToString())
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        File(context.getExternalFilesDir(null), "library.png").outputStream().use {
+            compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+        }
         compose.onNodeWithText("Installed apps").assertIsDisplayed()
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         compose.onNodeWithText("Welcome home").assertIsDisplayed()
